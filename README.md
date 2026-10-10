@@ -2,220 +2,290 @@
 
 ## Intelligent Systems — Group Assignment
 
-This project implements Artificial Intelligence search algorithms in the Pac-Man environment. The assignment focuses on uninformed and informed search algorithms to find paths through mazes and solve search problems.
+This project implements classical Artificial Intelligence search algorithms using the Pac-Man environment.
 
-## 1. Implemented Search Algorithms
+The objective is to implement uninformed and informed search algorithms and use them to find paths through mazes and solve more complex search problems.
 
-| Question | Algorithm | Implementation | Contributor |
+## 1. Project Progress
+
+| Question | Algorithm | Contributor | Status |
 |---|---|---|---|
-| Q1 | Depth First Search (DFS) | `depthFirstSearch()` | IT24100802 |
-| Q2 | Breadth First Search (BFS) | `breadthFirstSearch()` | IT24101801 |
-| Q3 | Uniform Cost Search | Pending | To be updated |
-| Q4 | A* Search | Pending | To be updated |
-| Q5 | Corners Problem | Pending | To be updated |
-| Q6 | Corners Heuristic | Pending | To be updated |
-| Q7 | Food Heuristic | Pending | To be updated |
+| Q1 | Depth First Search (DFS) | IT24100802 | Completed — PASS |
+| Q2 | Breadth First Search (BFS) | IT24101801 | Completed — PASS |
+| Q3 | Uniform Cost Search (UCS) | IT24101861 | Completed — PASS |
+| Q4 | A* Search | IT24102710 | Completed — PASS |
+| Q5 | Corners Problem | To be updated | Pending |
+| Q6 | Corners Heuristic | To be updated | Pending |
+| Q7 | Food Heuristic | To be updated | Pending |
 
-## 2. Q1 — Depth First Search (DFS)
+**Current testing progress:** Q1–Q4 passed all available local autograder tests.
+
+## 2. Implemented Algorithms
+
+### Q1 — Depth First Search (DFS)
 
 **Contributor:** IT24100802  
 **Branch:** `Question1_DFS_IT24100802`  
+**Function:** `depthFirstSearch()`  
 **File:** `search.py`
 
-### Overview
+DFS is an uninformed search algorithm that explores deeper nodes before backtracking.
 
-Depth First Search (DFS) is an uninformed search algorithm that explores the deepest available nodes before backtracking.
+It uses a Stack with Last In, First Out (LIFO) behaviour.
 
-DFS uses a Stack data structure, which follows the Last In, First Out (LIFO) principle.
+The implementation tracks expanded states and returns a valid sequence of actions when the goal is reached.
 
-### Implementation
+DFS does not guarantee the shortest path.
 
-- Search function: `depthFirstSearch()`
-- Data structure: `util.Stack`
-- Uses graph search to avoid repeated state expansion
-- Returns a sequence of actions to reach the goal
+**Autograder result:** 3/3 — PASS
 
-### Testing
-
-Run the Q1 autograder:
-
-```bash
-python autograder.py -q q1
-```
-
-Run DFS in Pac-Man:
-
-```bash
-python pacman.py -l tinyMaze -p SearchAgent -a fn=dfs
-python pacman.py -l mediumMaze -p SearchAgent -a fn=dfs
-```
-
-**Test status:** Awaiting verified Q1 autograder results.
-
-## 3. Q2 — Breadth First Search (BFS)
+### Q2 — Breadth First Search (BFS)
 
 **Contributor:** IT24101801  
 **Branch:** `Question2_BFS_IT24101801`  
+**Function:** `breadthFirstSearch()`  
 **File:** `search.py`
 
-### Overview
+BFS is an uninformed search algorithm that explores nodes level by level.
 
-Breadth First Search (BFS) is an uninformed search algorithm that explores states level by level.
+It uses a Queue with First In, First Out (FIFO) behaviour.
 
-BFS uses a Queue data structure, following the First In, First Out (FIFO) principle.
+The implementation uses an expanded-state set to prevent repeated expansion and tracks the actions needed to reach the goal.
 
-When all step costs are equal, BFS guarantees a shortest path in terms of the number of actions.
+BFS guarantees a shortest path in number of actions when all movement costs are equal.
 
-### Implementation
+**Autograder result:** 3/3 — PASS
 
-- Search function: `breadthFirstSearch()`
-- Data structure: `util.Queue`
-- Tracks expanded states using a Python set
-- Prevents repeated expansion of states
-- Checks whether the goal has been reached
-- Returns the action sequence from the starting state to the goal
+### Q3 — Uniform Cost Search (UCS)
 
-### Autograder Testing
+**Contributor:** IT24101861  
+**Branch:** `Question3_UCS_IT24101861`  
+**Function:** `uniformCostSearch()`  
+**File:** `search.py`
 
-Command:
+UCS is an uninformed search algorithm that selects the node with the lowest accumulated path cost.
 
-```bash
-python autograder.py -q q2
-```
+It uses a Priority Queue.
 
-**Result: PASS — 3/3 (local autograder)**
+Its priority is based on:
 
-All five test cases passed:
+`g(n) = Actual cost from the starting state to node n`
 
-| Test case | Result |
-|---|---|
-| graph_backtrack.test | PASS |
-| graph_bfs_vs_dfs.test | PASS |
-| graph_infinite.test | PASS |
-| graph_manypaths.test | PASS |
-| pacman_1.test | PASS |
+UCS finds a minimum-cost path when step costs are nonnegative and the usual search conditions hold.
 
-### Pac-Man Execution Testing
+**Autograder result:** 3/3 — PASS
 
-Commands:
+### Q4 — A* Search
 
-```bash
-python pacman.py -l tinyMaze -p SearchAgent -a fn=bfs
-python pacman.py -l mediumMaze -p SearchAgent -a fn=bfs
-```
+**Contributor:** IT24102710  
+**Branch:** `Question4_AStarSearch_IT24102710`  
+**Function:** `aStarSearch()`  
+**File:** `search.py`
 
-| Metric | tinyMaze | mediumMaze |
-|---|---|---|
-| Path cost | 8 | 68 |
-| Nodes expanded | 15 | 269 |
-| Game score | 502 | 442 |
-| Win rate | 100% | 100% |
-| Result | PASS | PASS |
+A* is an informed search algorithm that combines the actual path cost and an estimate of the remaining cost.
 
-BFS successfully found a valid path and Pac-Man reached the goal in both layouts.
+It uses a Priority Queue with the evaluation function:
 
-## 4. DFS vs BFS
+`f(n) = g(n) + h(n)`
 
-| Feature | DFS | BFS |
-|---|---|---|
-| Search type | Uninformed | Uninformed |
-| Data structure | Stack | Queue |
-| Traversal | Deepest nodes first | Shallowest nodes first |
-| Processing order | LIFO | FIFO |
-| Shortest path guarantee | No | Yes, for equal-cost steps |
-| Expanded-state tracking | Yes | Yes |
+Where:
 
-## 5. Environment Setup
+- `g(n)` = Actual path cost from the starting node
+- `h(n)` = Estimated remaining cost
+- `f(n)` = Estimated total path cost
 
-**Recommended Python version:** Python 3.11
+With a suitable admissible and consistent heuristic, A* can find an optimal solution efficiently.
 
-Create a Conda environment:
+**Autograder result:** 3/3 — PASS
 
-```bash
-conda create -n cs188 python=3.11
-conda activate cs188
-pip install numpy matplotlib
-```
+## 3. Environment Setup
 
-Alternatively, use a Python virtual environment.
+### Requirements
 
-On Windows:
+- Python 3.9–3.11
+- Git
+- NumPy and Matplotlib, as specified in the assignment setup
+
+### Using a Python Virtual Environment on Windows
+
+Create a virtual environment with Python 3.11:
 
 ```powershell
 py -3.11 -m venv venv
+```
+
+Activate it:
+
+```powershell
 .\venv\Scripts\Activate.ps1
+```
+
+Install the assignment's listed packages:
+
+```powershell
 pip install numpy matplotlib
 ```
 
-Run Pac-Man:
+Verify Python:
 
-```bash
+```powershell
+python --version
+```
+
+Run the Pac-Man game:
+
+```powershell
 python pacman.py
 ```
 
-## 6. Git Branches
+## 4. Autograder Testing
 
-| Branch | Purpose |
-|---|---|
-| `main` | Integrated project |
-| `Question1_DFS_IT24100802` | Q1 DFS development |
-| `Question2_BFS_IT24101801` | Q2 BFS development |
+Run individual autograder tests:
 
-Further branches will be added as the other questions are developed.
-
-## 7. Testing and Integration
-
-Each question is tested separately using the provided autograder.
-
-Q1:
-
-```bash
+```powershell
 python autograder.py -q q1
-```
-
-Q2:
-
-```bash
 python autograder.py -q q2
+python autograder.py -q q3
+python autograder.py -q q4
 ```
 
-After both implementations are merged into `main`, both tests should be repeated to verify integration.
+### Verified Results — October 10, 2026
 
-The full autograder can be executed using:
+| Question | Tests Passed | Local Score | Status |
+|---|---:|---:|---|
+| Q1 — DFS | 5/5 | 3/3 | PASS |
+| Q2 — BFS | 5/5 | 3/3 | PASS |
+| Q3 — UCS | 10/10 | 3/3 | PASS |
+| Q4 — A* | 6/6 | 3/3 | PASS |
+| **Total** | **26/26** | **12/12** | **PASS** |
 
-```bash
+These are the scores reported by the provided local autograder, not the final course grade.
+
+## 5. Pac-Man Execution Testing
+
+The following tests were performed using the `mediumMaze` layout.
+
+### Commands
+
+**DFS**
+
+```powershell
+python pacman.py -l mediumMaze -p SearchAgent -a fn=dfs
+```
+
+**BFS**
+
+```powershell
+python pacman.py -l mediumMaze -p SearchAgent -a fn=bfs
+```
+
+**UCS**
+
+```powershell
+python pacman.py -l mediumMaze -p SearchAgent -a fn=ucs
+```
+
+**A* with Manhattan Heuristic**
+
+```powershell
+python pacman.py -l mediumMaze -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic
+```
+
+### Execution Results
+
+| Algorithm | Path Cost | Nodes Expanded | Pac-Man Score | Result |
+|---|---:|---:|---:|---|
+| DFS | 130 | 146 | 380 | WIN |
+| BFS | 68 | 269 | 442 | WIN |
+| UCS | 68 | 269 | 442 | WIN |
+| A* | 68 | 221 | 442 | WIN |
+
+All four algorithms successfully found paths to the goal.
+
+### Observations
+
+- DFS expanded 146 nodes but returned a longer path with cost 130.
+- BFS found a shortest path with cost 68 and expanded 269 nodes.
+- UCS also found a path with cost 68 and expanded 269 nodes.
+- A* with Manhattan distance found a path with cost 68 while expanding 221 nodes.
+- A* reduced the number of expanded nodes compared with BFS and UCS in this maze.
+
+## 6. Algorithm Comparison
+
+| Feature | DFS | BFS | UCS | A* |
+|---|---|---|---|---|
+| Search type | Uninformed | Uninformed | Uninformed | Informed |
+| Data structure | Stack | Queue | Priority Queue | Priority Queue |
+| Exploration rule | Deepest first | Shallowest first | Lowest path cost | Lowest estimated total cost |
+| Priority | LIFO | FIFO | g(n) | g(n) + h(n) |
+| Uses a heuristic | No | No | No | Yes |
+| Optimality | Not guaranteed | Equal-cost steps | Nonnegative costs under standard conditions | Suitable heuristic and conditions |
+
+## 7. Git Branches and Contributions
+
+| Branch | Contributor | Task |
+|---|---|---|
+| `main` | Group | Integrated code |
+| `Question1_DFS_IT24100802` | IT24100802 | Q1 DFS |
+| `Question2_BFS_IT24101801` | IT24101801 | Q2 BFS |
+| `Question3_UCS_IT24101861` | IT24101861 | Q3 UCS |
+| `Question4_AStarSearch_IT24102710` | IT24102710 | Q4 A* |
+
+Each question is developed in a separate branch to support code review, collaboration, and individual contribution tracking.
+
+## 8. Pending Implementation
+
+The remaining implementation tasks are:
+
+**Q5 — Corners Problem**
+- Implement `CornersProblem` in `searchAgents.py`.
+- Represent the current position and visited corners.
+- Implement start state, goal checking, and successor generation.
+
+**Q6 — Corners Heuristic**
+- Implement `cornersHeuristic()` in `searchAgents.py`.
+- Ensure admissibility and consistency.
+- Optimize the number of expanded nodes.
+
+**Q7 — Food Heuristic**
+- Implement `foodHeuristic()` in `searchAgents.py`.
+- Estimate the remaining cost of collecting all food dots.
+- Ensure admissibility and consistency.
+- Optimize search efficiency.
+
+## 9. Integration and Final Testing
+
+After all seven implementations have been reviewed and merged into `main`, execute:
+
+```powershell
 python autograder.py
 ```
 
-## 8. Group Contributions
+Capture the final autograder results and verify that Q1–Q7 all pass.
 
-| Student ID | Development | Testing and Additional Responsibilities |
-|---|---|---|
-| IT24100802 | Q1 — DFS | DFS testing and contribution evidence |
-| IT24101801 | Q2 — BFS | BFS testing, README documentation, Q1/Q2 integration verification |
-| Other members | Q3–Q7 | To be updated |
+## 10. Project Structure
 
-## 9. Project Files
+```text
+IT3012-Pacman-Search-Algorithms/
+├── search.py
+├── searchAgents.py
+├── util.py
+├── pacman.py
+├── game.py
+├── autograder.py
+├── layouts/
+├── test_cases/
+└── README.md
+```
 
-| File | Description |
-|---|---|
-| `search.py` | Search algorithm implementations |
-| `searchAgents.py` | Search problems and heuristic functions |
-| `util.py` | Stack, Queue and PriorityQueue |
-| `pacman.py` | Pac-Man game |
-| `game.py` | Game mechanics |
-| `autograder.py` | Automated testing |
-| `test_cases/` | Question test cases |
-| `layouts/` | Pac-Man maze layouts |
+## 11. Attribution
 
-## 10. Attribution
+The Pac-Man AI starter project is based on the UC Berkeley CS188 Pac-Man search project.
 
-The Pac-Man AI starter project is based on the UC Berkeley CS188 Pac-Man projects.
-
-Original copyright, licensing and attribution notices must be preserved. Repository publication should comply with the starter project's license and the lecturer's instructions.
+Original copyright, license, and attribution notices must be preserved. Any public distribution of starter or solution code must comply with the applicable project license and lecturer instructions.
 
 Reference: http://ai.berkeley.edu
 
 ---
 
-**Project Status:** Q2 BFS tested successfully; Q1 results and final Q1/Q2 integration verification pending.
+**Current Status:** Q1–Q4 passed local autograder and mediumMaze execution tests. Q5–Q7 remain pending.
