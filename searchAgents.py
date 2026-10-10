@@ -376,8 +376,55 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    
+    position, visited = state
+
+    unvisited = [
+        corner
+        for corner, has_visited in zip(corners, visited)
+        if not has_visited
+    ]
+
+    if not unvisited:
+        return 0
+
+    def manhattan_distance(point1, point2):
+        return (
+            abs(point1[0] - point2[0])
+            + abs(point1[1] - point2[1])
+        )
+
+    # Distance from Pacman to the nearest unvisited corner
+    nearest_distance = min(
+        manhattan_distance(position, corner)
+        for corner in unvisited
+    )
+
+    # Estimate the minimum cost of connecting all unvisited corners
+    connected = [unvisited[0]]
+    remaining = unvisited[1:]
+    mst_cost = 0
+
+    while remaining:
+        best_distance = float("inf")
+        best_corner = None
+
+        for connected_corner in connected:
+            for candidate in remaining:
+                distance = manhattan_distance(
+                    connected_corner, candidate
+                )
+
+                if distance < best_distance:
+                    best_distance = distance
+                    best_corner = candidate
+
+        mst_cost += best_distance
+        connected.append(best_corner)
+        remaining.remove(best_corner)
+
+    return nearest_distance + mst_cost
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
