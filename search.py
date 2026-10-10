@@ -72,7 +72,7 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def depthFirstSearch(problem: SearchProblem):
+
     """
     Search the deepest nodes in the search tree first.
 
@@ -86,7 +86,41 @@ def depthFirstSearch(problem: SearchProblem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
+    
+def depthFirstSearch(problem: SearchProblem):
+    
+    #Search the deepest nodes in the search tree first.
+    
+    frontier = util.Stack()
+    start_state = problem.getStartState()
+
+    # Store each state with the path used to reach it.
+    frontier.push((start_state, []))
+
+    explored = set()
+
+    while not frontier.isEmpty():
+        state, actions = frontier.pop()
+
+        # Ignore states that have already been explored.
+        if state in explored:
+            continue
+
+        explored.add(state)
+
+        # Return the action sequence when the goal is reached.
+        if problem.isGoalState(state):
+            return actions
+
+        # Add successors to the LIFO stack.
+        for successor, action, step_cost in problem.getSuccessors(state):
+            if successor not in explored:
+                frontier.push((successor, actions + [action]))
+
+    # No solution exists.
+    return []
+
+    
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem: SearchProblem):
