@@ -488,37 +488,89 @@ class AStarFoodSearchAgent(SearchAgent):
         self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
         self.searchType = FoodSearchProblem
 
+
 def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
-    Your heuristic for the FoodSearchProblem goes here.
-
-    This heuristic must be consistent to ensure correctness.  First, try to come
-    up with an admissible heuristic; almost all admissible heuristics will be
-    consistent as well.
-
-    If using A* ever finds a solution that is worse uniform cost search finds,
-    your heuristic is *not* consistent, and probably not admissible!  On the
-    other hand, inadmissible or inconsistent heuristics may find optimal
-    solutions, so be careful.
-
-    The state is a tuple ( pacmanPosition, foodGrid ) where foodGrid is a Grid
-    (see game.py) of either True or False. You can call foodGrid.asList() to get
-    a list of food coordinates instead.
-
-    If you want access to info like walls, capsules, etc., you can query the
-    problem.  For example, problem.walls gives you a Grid of where the walls
-    are.
-
-    If you want to *store* information to be reused in other calls to the
-    heuristic, there is a dictionary called problem.heuristicInfo that you can
-    use. For example, if you only want to count the walls once and store that
-    value, try: problem.heuristicInfo['wallCount'] = problem.walls.count()
-    Subsequent calls to this heuristic can access
-    problem.heuristicInfo['wallCount']
+    Estimate the remaining cost of collecting all food dots
+    using maze distances and a Minimum Spanning Tree (MST).
     """
+    from collections import deque
+
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+    foods = foodGrid.asList()
+
+    # No food remaining means the goal is reached.
+    if not foods:
+        return 0
+
+    walls = problem.walls
+    info = problem.heuristicInfo
+
+    # Cache shortest-path distances to avoid repeated BFS.
+    distance_maps = info.setdefault("food_distance_maps", {})
+
+    def distances_from(source):
+        if source not in distance_maps:
+            distances = {source: 0}
+            queue = deque([source])
+
+            while queue:
+                x, y = queue.popleft()
+
+                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    nx, ny = x + dx, y + dy
+                    neighbor = (nx, ny)
+
+                    if (0 <= nx < walls.width
+                            and 0 <= ny < walls.height
+                            and not walls[nx][ny]
+                            and neighbor not in distances):
+
+                        distances[neighbor] = distances[(x, y)] + 1
+                        queue.append(neighbor)
+
+            distance_maps[source] = distances
+
+        return distance_maps[source]
+
+    # Minimum maze distance from Pac-Man to any food.
+    nearest_food = min(
+        distances_from(food)[position]
+        for food in foods
+    )
+
+    # Cache MST costs for different remaining-food sets.
+    mst_cache = info.setdefault("food_mst_costs", {})
+    food_key = frozenset(foods)
+
+    if food_key not in mst_cache:
+        remaining = set(foods)
+        first = remaining.pop()
+
+        # Prim's algorithm: cheapest connection to the tree.
+        best_edges = {
+            food: distances_from(first)[food]
+            for food in remaining
+        }
+
+        mst_cost = 0
+
+        while remaining:
+            next_food = min(remaining, key=lambda f: best_edges[f])
+            mst_cost += best_edges[next_food]
+            remaining.remove(next_food)
+
+            # Update the cheapest connection for each food.
+            for food in remaining:
+                cost = distances_from(next_food)[food]
+
+                if cost < best_edges[food]:
+                    best_edges[food] = cost
+
+        mst_cache[food_key] = mst_cost
+
+    return nearest_food + mst_cache[food_key]
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
