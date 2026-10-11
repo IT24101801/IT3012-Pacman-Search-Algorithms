@@ -1,291 +1,274 @@
 # IT3012 — Pac-Man Search Algorithms
 
-## Intelligent Systems — Group Assignment
+**Intelligent Systems | Group Assignment | 2026**
 
-This project implements classical Artificial Intelligence search algorithms using the Pac-Man environment.
+**Repository:** [IT24101801/IT3012-Pacman-Search-Algorithms](https://github.com/IT24101801/IT3012-Pacman-Search-Algorithms)
 
-The objective is to implement uninformed and informed search algorithms and use them to find paths through mazes and solve more complex search problems.
+## Project Overview
 
-## 1. Project Progress
+This project implements seven search-related tasks in the UC Berkeley CS188 Pac-Man environment. It explores **uninformed search** (Depth First Search, Breadth First Search, and Uniform Cost Search), **informed search** (A*), problem-state representation for visiting every maze corner, and admissible, consistent heuristics for visiting corners and collecting all remaining food dots.
 
-| Question | Algorithm | Contributor | Status |
-|---|---|---|---|
-| Q1 | Depth First Search (DFS) | IT24100802 | Completed — PASS |
-| Q2 | Breadth First Search (BFS) | IT24101801 | Completed — PASS |
-| Q3 | Uniform Cost Search (UCS) | IT24101861 | Completed — PASS |
-| Q4 | A* Search | IT24102710 | Completed — PASS |
-| Q5 | Corners Problem | To be updated | Pending |
-| Q6 | Corners Heuristic | IT24100802 | Completed - PASS |
-| Q7 | Food Heuristic | IT24101861 | Completed - PASS |
+All **seven questions required by the group's assignment (Q1–Q7)** are implemented in the integrated project. Their local autograder tests have passed. The project uses the provided Pac-Man engine and autograder; these are not original implementations by the group.
 
-**Current testing progress:** Q1–Q4 passed all available local autograder tests.
+## Contents
 
-## 2. Implemented Algorithms
+- [Implementation Status and Contributions](#implementation-status-and-contributions)
+- [Algorithms and Heuristics](#algorithms-and-heuristics)
+- [Requirements and Setup](#requirements-and-setup)
+- [Run Pac-Man with the Implemented Agents](#run-pac-man-with-the-implemented-agents)
+- [Autograder Results](#autograder-results)
+- [Performance Comparison](#performance-comparison)
+- [Repository Structure](#repository-structure)
+- [Version Control and Collaboration](#version-control-and-collaboration)
+- [Assignment Submission and Evidence](#assignment-submission-and-evidence)
+- [Attribution](#attribution)
+
+## Implementation Status and Contributions
+
+Each question was developed on a task-specific branch and integrated into `main` through GitHub pull requests.
+
+| Question | Task | Main function or class | Edited file | Contributor ID | Status |
+|---|---|---|---|---|---|
+| Q1 | Depth First Search (DFS) | `depthFirstSearch()` | `search.py` | IT24100802 | Complete — PASS |
+| Q2 | Breadth First Search (BFS) | `breadthFirstSearch()` | `search.py` | IT24101801 | Complete — PASS |
+| Q3 | Uniform Cost Search (UCS) | `uniformCostSearch()` | `search.py` | IT24101861 | Complete — PASS |
+| Q4 | A* Search | `aStarSearch()` | `search.py` | IT24102710 | Complete — PASS |
+| Q5 | Finding All Corners | `CornersProblem` | `searchAgents.py` | IT24101801 | Complete — PASS |
+| Q6 | Corners Heuristic | `cornersHeuristic()` | `searchAgents.py` | IT24100802 | Complete — PASS |
+| Q7 | Food Heuristic | `foodHeuristic()` | `searchAgents.py` | IT24101861 | Complete — PASS |
+
+Contributor IDs and task ownership reflect the repository's feature branches, commits, and pull requests. Refer to the group report for full names, additional shared contributions, and screenshots of Git history.
+
+## Algorithms and Heuristics
 
 ### Q1 — Depth First Search (DFS)
 
-**Contributor:** IT24100802  
-**Branch:** `Question1_DFS_IT24100802`  
-**Function:** `depthFirstSearch()`  
-**File:** `search.py`
-
-DFS is an uninformed search algorithm that explores deeper nodes before backtracking.
-
-It uses a Stack with Last In, First Out (LIFO) behaviour.
-
-The implementation tracks expanded states and returns a valid sequence of actions when the goal is reached.
-
-DFS does not guarantee the shortest path.
-
-**Autograder result:** 3/3 — PASS
+`depthFirstSearch()` uses `util.Stack` (**last in, first out**) to explore the deepest available path first. It keeps a set of explored states, avoids expanding the same state repeatedly, and returns the sequence of actions when the goal is found. DFS does **not** guarantee a shortest path.
 
 ### Q2 — Breadth First Search (BFS)
 
-**Contributor:** IT24101801  
-**Branch:** `Question2_BFS_IT24101801`  
-**Function:** `breadthFirstSearch()`  
-**File:** `search.py`
-
-BFS is an uninformed search algorithm that explores nodes level by level.
-
-It uses a Queue with First In, First Out (FIFO) behaviour.
-
-The implementation uses an expanded-state set to prevent repeated expansion and tracks the actions needed to reach the goal.
-
-BFS guarantees a shortest path in number of actions when all movement costs are equal.
-
-**Autograder result:** 3/3 — PASS
+`breadthFirstSearch()` uses `util.Queue` (**first in, first out**) to explore states in increasing depth order. An explored-state set prevents repeated expansion. For equal-cost movements, BFS finds a shortest path in number of actions.
 
 ### Q3 — Uniform Cost Search (UCS)
 
-**Contributor:** IT24101861  
-**Branch:** `Question3_UCS_IT24101861`  
-**Function:** `uniformCostSearch()`  
-**File:** `search.py`
+`uniformCostSearch()` uses `util.PriorityQueue` and prioritizes the **accumulated path cost**:
 
-UCS is an uninformed search algorithm that selects the node with the lowest accumulated path cost.
+```text
+g(n) = cost of the path from the starting state to n
+```
 
-It uses a Priority Queue.
-
-Its priority is based on:
-
-`g(n) = Actual cost from the starting state to node n`
-
-UCS finds a minimum-cost path when step costs are nonnegative and the usual search conditions hold.
-
-**Autograder result:** 3/3 — PASS
+The implementation stores the best discovered cost per state, skips outdated higher-cost queue entries, and updates a state when a cheaper route is found. UCS supports variable movement costs and finds minimum-cost solutions under the standard nonnegative-cost search assumptions.
 
 ### Q4 — A* Search
 
-**Contributor:** IT24102710  
-**Branch:** `Question4_AStarSearch_IT24102710`  
-**Function:** `aStarSearch()`  
-**File:** `search.py`
+`aStarSearch()` combines the cost already incurred and a heuristic estimate of the remaining cost:
 
-A* is an informed search algorithm that combines the actual path cost and an estimate of the remaining cost.
+```text
+f(n) = g(n) + h(n)
+```
 
-It uses a Priority Queue with the evaluation function:
+It uses `util.PriorityQueue`, maintains cumulative path costs, and checks for the goal when a state is removed from the priority queue. With an appropriate admissible/consistent heuristic, A* finds an optimal route.
 
-`f(n) = g(n) + h(n)`
+### Q5 — Finding All Corners
 
-Where:
+`CornersProblem` represents a search state as:
 
-- `g(n)` = Actual path cost from the starting node
-- `h(n)` = Estimated remaining cost
-- `f(n)` = Estimated total path cost
+```python
+(position, (visited_corner_1, visited_corner_2,
+            visited_corner_3, visited_corner_4))
+```
 
-With a suitable admissible and consistent heuristic, A* can find an optimal solution efficiently.
+The visited-corner flags are stored in a hashable tuple. `getStartState()` initializes them, `isGoalState()` checks whether every corner was visited, and `getSuccessors()` generates legal moves, updates the flags, assigns unit step costs, and maintains the expansion counter.
 
-**Autograder result:** 3/3 — PASS
+### Q6 — Corners Heuristic
 
-## 3. Environment Setup
+`cornersHeuristic()` estimates the remaining path cost by adding:
 
-### Requirements
+1. The Manhattan distance to the nearest unvisited corner.
+2. A minimum spanning tree (MST) cost connecting the unvisited corners, also using Manhattan distances.
 
-- Python 3.9–3.11
-- Git
-- NumPy and Matplotlib, as specified in the assignment setup
+It returns zero when all four corners have been visited. On the tested `mediumCorners` layout, the heuristic led A* to expand **774 nodes**, below the assignment's **1,200-node** threshold for the highest performance band.
 
-### Using a Python Virtual Environment on Windows
+### Q7 — Food Heuristic
 
-Create a virtual environment with Python 3.11:
+`foodHeuristic()` estimates the remaining cost of collecting all food dots using:
+
+```text
+h(n) = maze distance to nearest remaining food
+       + MST cost connecting all remaining food dots
+```
+
+Shortest-path maze distances are computed through BFS (accounting for walls) and cached in `problem.heuristicInfo`. The MST is constructed using Prim's algorithm, with its costs also cached for each remaining-food set. This provides a lower-bound estimate for the remaining route.
+
+On the autograder's `trickySearch` test, the heuristic expanded **255 nodes**, comfortably below the assignment's **9,000-node** threshold for its highest performance band.
+
+## Requirements and Setup
+
+The assignment specifies **Python 3.9–3.11**. Python **3.11** is recommended. Git is needed for working with the repository. NumPy and Matplotlib are listed in the assignment's environment setup.
+
+### 1. Clone the repository
+
+```powershell
+git clone https://github.com/IT24101801/IT3012-Pacman-Search-Algorithms.git
+cd IT3012-Pacman-Search-Algorithms
+```
+
+### 2. Create a virtual environment (Windows PowerShell)
 
 ```powershell
 py -3.11 -m venv venv
-```
-
-Activate it:
-
-```powershell
 .\venv\Scripts\Activate.ps1
 ```
 
-Install the assignment's listed packages:
+If PowerShell blocks activation under your system's execution policy, use the virtual environment's Python executable directly instead of permanently changing security settings:
 
 ```powershell
-pip install numpy matplotlib
+.\venv\Scripts\python.exe -m pip install numpy matplotlib
+.\venv\Scripts\python.exe pacman.py
 ```
 
-Verify Python:
+### 3. Install the packages
 
 ```powershell
+python -m pip install numpy matplotlib
 python --version
 ```
 
-Run the Pac-Man game:
+The virtual environment is excluded from version control by `.gitignore`. **Do not commit or submit `venv/`.**
+
+### 4. Verify Pac-Man launches
 
 ```powershell
 python pacman.py
 ```
 
-## 4. Autograder Testing
+A Pac-Man game window should open.
 
-Run individual autograder tests:
+## Run Pac-Man with the Implemented Agents
+
+Run the following commands from the project's root directory after activating the Python environment. The `--frameTime 0.3` argument is optional and slows the animation for screenshots.
+
+| Question | Demonstration command |
+|---|---|
+| Q1 — DFS | `python pacman.py -l mediumMaze -p SearchAgent -a fn=dfs --frameTime 0.3` |
+| Q2 — BFS | `python pacman.py -l mediumMaze -p SearchAgent -a fn=bfs --frameTime 0.3` |
+| Q3 — UCS | `python pacman.py -l mediumMaze -p SearchAgent -a fn=ucs --frameTime 0.3` |
+| Q4 — A* | `python pacman.py -l mediumMaze -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic --frameTime 0.3` |
+| Q5 — Corners Problem | `python pacman.py -l tinyCorners -p SearchAgent -a fn=bfs,prob=CornersProblem --frameTime 0.3` |
+| Q6 — Corners Heuristic | `python pacman.py -l mediumCorners -p AStarCornersAgent --frameTime 0.3` |
+| Q7 — Food Heuristic | `python pacman.py -l trickySearch -p AStarFoodSearchAgent --frameTime 0.3` |
+
+These commands produce visual demonstrations of the agents. The **autograder outputs** remain the primary grading evidence.
+
+## Autograder Results
+
+The project was tested using the provided `autograder.py`. The results below reflect the completed Q1–Q7 implementation and the recorded integrated run on **11 October 2026**, reproduced from the supplied project files.
+
+### Individual question commands
 
 ```powershell
 python autograder.py -q q1
 python autograder.py -q q2
 python autograder.py -q q3
 python autograder.py -q q4
+python autograder.py -q q5
+python autograder.py -q q6
+python autograder.py -q q7
 ```
 
-### Verified Results — October 10, 2026
+The Q7 test also triggers its Q4 dependency.
 
-| Question | Tests Passed | Local Score | Status |
-|---|---:|---:|---|
-| Q1 — DFS | 5/5 | 3/3 | PASS |
-| Q2 — BFS | 5/5 | 3/3 | PASS |
-| Q3 — UCS | 10/10 | 3/3 | PASS |
-| Q4 — A* | 6/6 | 3/3 | PASS |
-| **Total** | **26/26** | **12/12** | **PASS** |
+| Question | Local autograder score | Relevant observation |
+|---|---:|---|
+| Q1 — DFS | 3/3 | All 5 tests passed |
+| Q2 — BFS | 3/3 | All 5 tests passed |
+| Q3 — UCS | 3/3 | All 10 tests passed |
+| Q4 — A* | 3/3 | All 6 tests passed |
+| Q5 — Corners Problem | 3/3 | Tiny-corner problem test passed |
+| Q6 — Corners Heuristic | 3/3 | 774 expanded nodes; 106-action path on `mediumCorners` |
+| Q7 — Food Heuristic | **5/4*** | All 18 tests passed; 255 expanded nodes |
 
-These are the scores reported by the provided local autograder, not the final course grade.
+**All seven questions required by the lecturer's assignment passed the provided local tests.** The listed local scores are **not** the official course marks; the assignment uses its own 40-mark allocation for Q1–Q7.
 
-## 5. Pac-Man Execution Testing
+### Why Q7 displays `5/4`*
 
-The following tests were performed using the `mediumMaze` layout.
+The local Q7 autograder is configured with `max_points: 4`, but its `food_heuristic_grade_tricky.test` awards **one base point plus one point for each of four thresholds** met (15,000, 12,000, 9,000, and 7,000 nodes). With **255 expanded nodes**, all four thresholds were met, giving **5 points against a configured maximum of 4**. The extra displayed point is a **test configuration inconsistency**, not additional guaranteed course marks.
 
-### Commands
+### Why a full run also shows Q8
 
-**DFS**
-
-```powershell
-python pacman.py -l mediumMaze -p SearchAgent -a fn=dfs
-```
-
-**BFS**
-
-```powershell
-python pacman.py -l mediumMaze -p SearchAgent -a fn=bfs
-```
-
-**UCS**
-
-```powershell
-python pacman.py -l mediumMaze -p SearchAgent -a fn=ucs
-```
-
-**A* with Manhattan Heuristic**
-
-```powershell
-python pacman.py -l mediumMaze -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic
-```
-
-### Execution Results
-
-| Algorithm | Path Cost | Nodes Expanded | Pac-Man Score | Result |
-|---|---:|---:|---:|---|
-| DFS | 130 | 146 | 380 | WIN |
-| BFS | 68 | 269 | 442 | WIN |
-| UCS | 68 | 269 | 442 | WIN |
-| A* | 68 | 221 | 442 | WIN |
-
-All four algorithms successfully found paths to the goal.
-
-### Observations
-
-- DFS expanded 146 nodes but returned a longer path with cost 130.
-- BFS found a shortest path with cost 68 and expanded 269 nodes.
-- UCS also found a path with cost 68 and expanded 269 nodes.
-- A* with Manhattan distance found a path with cost 68 while expanding 221 nodes.
-- A* reduced the number of expanded nodes compared with BFS and UCS in this maze.
-
-## 6. Algorithm Comparison
-
-| Feature | DFS | BFS | UCS | A* |
-|---|---|---|---|---|
-| Search type | Uninformed | Uninformed | Uninformed | Informed |
-| Data structure | Stack | Queue | Priority Queue | Priority Queue |
-| Exploration rule | Deepest first | Shallowest first | Lowest path cost | Lowest estimated total cost |
-| Priority | LIFO | FIFO | g(n) | g(n) + h(n) |
-| Uses a heuristic | No | No | No | Yes |
-| Optimality | Not guaranteed | Equal-cost steps | Nonnegative costs under standard conditions | Suitable heuristic and conditions |
-
-## 7. Git Branches and Contributions
-
-| Branch | Contributor | Task |
-|---|---|---|
-| `main` | Group | Integrated code |
-| `Question1_DFS_IT24100802` | IT24100802 | Q1 DFS |
-| `Question2_BFS_IT24101801` | IT24101801 | Q2 BFS |
-| `Question3_UCS_IT24101861` | IT24101861 | Q3 UCS |
-| `Question4_AStarSearch_IT24102710` | IT24102710 | Q4 A* |
-
-Each question is developed in a separate branch to support code review, collaboration, and individual contribution tracking.
-
-## 8. Pending Implementation
-
-The remaining implementation tasks are:
-
-**Q5 — Corners Problem**
-- Implement `CornersProblem` in `searchAgents.py`.
-- Represent the current position and visited corners.
-- Implement start state, goal checking, and successor generation.
-
-**Q6 — Corners Heuristic**
-- Implement `cornersHeuristic()` in `searchAgents.py`.
-- Ensure admissibility and consistency.
-- Optimize the number of expanded nodes.
-
-**Q7 — Food Heuristic**
-- Implement `foodHeuristic()` in `searchAgents.py`.
-- Estimate the remaining cost of collecting all food dots.
-- Ensure admissibility and consistency.
-- Optimize search efficiency.
-
-## 9. Integration and Final Testing
-
-After all seven implementations have been reviewed and merged into `main`, execute:
+Running the complete command:
 
 ```powershell
 python autograder.py
 ```
 
-Capture the final autograder results and verify that Q1–Q7 all pass.
+also executes **Q8**, because the provided `test_cases/CONFIG` specifies `q1 q2 q3 q4 q5 q6 q7 q8`. **Q8 is not part of the lecturer's Q1–Q7 assignment requirements.** Its `findPathToClosestDot()` implementation remains a starter-code placeholder, so Q8 reports `0/3`. The full local output therefore shows **23/25**, including the unassigned Q8 and the extra Q7 point. **Do not treat that total as the assignment score.**
 
-## 10. Project Structure
+To run only the required questions in Windows PowerShell:
+
+```powershell
+1..7 | ForEach-Object { python autograder.py -q "q$_" }
+```
+
+## Performance Comparison
+
+The following values come from the supplied project's test results and documented Pac-Man execution runs; each layout and evaluation type is indicated to avoid comparing different test scenarios as though they were identical.
+
+| Search method | Layout / test | Path length or cost | Nodes expanded |
+|---|---|---:|---:|
+| DFS | `mediumMaze` | 130 | 146 |
+| BFS | `mediumMaze` | 68 | 269 |
+| UCS | `mediumMaze`, standard-cost test | 68 | 269 |
+| A* with Manhattan heuristic | `mediumMaze` | 68 | 221 |
+| Corners Problem with BFS | `mediumCorners` (project PR result) | 106 | 1,966 |
+| Corners Heuristic with A* | `mediumCorners` | 106 | 774 |
+| Food Heuristic with A* | `trickySearch` | — | **255** |
+
+The **same-maze** comparison shows A* with the Manhattan heuristic expanding fewer nodes than BFS or standard-cost UCS on `mediumMaze`. The corner heuristic also substantially reduces node expansions compared with the recorded BFS corner search. The food-heuristic test uses a different layout and should be evaluated against its own thresholds.
+
+## Repository Structure
 
 ```text
 IT3012-Pacman-Search-Algorithms/
-├── search.py
-├── searchAgents.py
-├── util.py
-├── pacman.py
-├── game.py
-├── autograder.py
-├── layouts/
-├── test_cases/
-└── README.md
+├── README.md              # Project overview, setup, results and collaboration
+├── search.py              # Q1–Q4: DFS, BFS, UCS and A*
+├── searchAgents.py        # Q5–Q7: CornersProblem and heuristics
+├── util.py                # Provided Stack, Queue and PriorityQueue
+├── pacman.py              # Provided Pac-Man game entry point
+├── game.py                # Provided game logic and grid structures
+├── autograder.py          # Provided local test runner
+├── layouts/               # Maze layouts, including mediumCorners and trickySearch
+├── test_cases/            # Provided tests, including an unassigned Q8
+└── .gitignore             # Excludes venv/, caches and other local files
 ```
 
-## 11. Attribution
+Additional files from the UC Berkeley starter project are retained in the repository.
 
-The Pac-Man AI starter project is based on the UC Berkeley CS188 Pac-Man search project.
+## Version Control and Collaboration
 
-Original copyright, license, and attribution notices must be preserved. Any public distribution of starter or solution code must comply with the applicable project license and lecturer instructions.
+Work was implemented on separate feature branches and reviewed/merged through pull requests.
 
-Reference: http://ai.berkeley.edu
+| Question | Feature branch | Merged pull request |
+|---|---|---|
+| Q1 | `Question1_DFS_IT24100802` | [PR #1](https://github.com/IT24101801/IT3012-Pacman-Search-Algorithms/pull/1) |
+| Q2 | `Question2_BFS_IT24101801` | [PR #2](https://github.com/IT24101801/IT3012-Pacman-Search-Algorithms/pull/2) |
+| Q3 | `Question3_UCS_IT24101861` | [PR #5](https://github.com/IT24101801/IT3012-Pacman-Search-Algorithms/pull/5) |
+| Q4 | `Question4_AStarSearch_IT24102710` | [Q4 contribution history](https://github.com/IT24101801/IT3012-Pacman-Search-Algorithms/commits/main/) |
+| Q5 | `Question5_CornersProblem_IT24101801` | [PR #6](https://github.com/IT24101801/IT3012-Pacman-Search-Algorithms/pull/6) |
+| Q6 | `Question6_CornersHeuristic_IT24100802` | [PR #7](https://github.com/IT24101801/IT3012-Pacman-Search-Algorithms/pull/7) |
+| Q7 | `Question7_FoodHeuristic_IT24101861` | [PR #8](https://github.com/IT24101801/IT3012-Pacman-Search-Algorithms/pull/8) |
+
+The Q4 work was integrated through multiple pull requests, so the commits/history are the authoritative record of that contribution. The final group report contains the formal contribution table and Git screenshots.
+
+## Attribution
+
+This project builds upon the **UC Berkeley CS188 Pac-Man AI Search Project** and retains its original source-code copyright and attribution notices. The Pac-Man game engine, layouts, test utilities, and autograder were provided as starter material.
+
+- [UC Berkeley Pac-Man AI Projects](https://ai.berkeley.edu/)
+- [UC Berkeley CS188](https://inst.eecs.berkeley.edu/~cs188/)
+
+**Academic integrity and redistribution:** The starter source notices specify conditions on distribution and publication of solutions. Group members should follow those notices and their lecturer's requirements when sharing the repository or final deliverables.
 
 ---
 
-**Current Status:** Q1–Q4 passed local autograder and mediumMaze execution tests. Q5–Q7 remain pending.
+**Project status: Q1–Q7 implemented, integrated into `main`, and passing the provided local autograder tests.**
