@@ -16,7 +16,7 @@ The objective is to implement uninformed and informed search algorithms and use 
 | Q4 | A* Search | IT24102710 | Completed — PASS |
 | Q5 | Corners Problem | To be updated | Pending |
 | Q6 | Corners Heuristic | IT24100802 | Completed - PASS |
-| Q7 | Food Heuristic | To be updated | Pending |
+| Q7 | Food Heuristic | IT24101861 | Completed - PASS |
 
 **Current testing progress:** Q1–Q4 passed all available local autograder tests.
 
